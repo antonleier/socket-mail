@@ -111,10 +111,16 @@ def smtp_noop(s, verbose):
         - ok (bool): Server status (True if the command is successful, False otherwise).
         - ans (str): Server response.
     """
-    ok = False
-    ans = ""
-    # ...
-    return ok, ans
+    try:
+        s.sendall(b'NOOP\r\n')
+        response = s.recv(MAXLINE).decode()
+        if verbose:
+            print(f"NOOP response: {response}")
+        return '250' in response, response
+    except Exception as e:
+        if verbose:
+            print(f"NOOP failed: {e}")
+        return False, str(e)
 
 ###############################################
 
