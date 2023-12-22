@@ -306,7 +306,7 @@ def pop3_retr(s, rank, verbose):
         s.send(f"RETR {rank}\r\n".encode())
 
         # Receive the server's response
-        ans = s.recv(4096).decode()
+        ans = s.recv(MAXLINE).decode()
 
         # Check if the response starts with "+OK"
         if ans.startswith("+OK"):
