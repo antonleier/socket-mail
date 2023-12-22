@@ -317,10 +317,10 @@ def pop3_retr(s, rank, verbose):
             email_object = email.message.Message()
             email_object['From'] = get_from(lines)
             email_object['To'] = get_to(lines)
-            email_object['Subject'] = get_subject(lines)
-            email_object['Date'] = get_subject(lines)
-            email_object.set_payload(get_payload(lines))
-
+            email_object['Subject'] = lines[-5] #get_subject(lines)
+            email_object['Date'] = lines[-4] #get_subject(lines)
+            #email_object.set_payload(get_payload(lines))
+            email_object.set_payload(lines[-3] + '\n' + lines[-2])
             ok = True
             msg = email_object
 
