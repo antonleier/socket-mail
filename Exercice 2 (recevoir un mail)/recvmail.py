@@ -44,7 +44,8 @@ if __name__ == "__main__":
     parser.add_argument('-l', '--login', type=str, default=LOGIN, help='user login')
     parser.add_argument('-p', '--password', type=str, default=PASSWORD, help='user password')
     parser.add_argument('-v', '--verbose', action='store_true', default=False, help='verbose')
-    parser.add_argument('cmd', type=str, choices=['noop', 'stat', 'list', 'retr', 'dele'], help='command')
+    #parser.add_argument('cmd', type=str, choices=['noop', 'stat', 'list', 'retr', 'dele'], help='command')
+    parser.add_argument('-cmd', type=str, choices=['noop', 'stat', 'list', 'retr', 'dele'], default='retr', help='command')
     parser.add_argument('rank', type=int, nargs='?', default=1, help='mail rank')
     args = parser.parse_args()
 
