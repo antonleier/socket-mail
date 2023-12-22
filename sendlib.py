@@ -34,9 +34,21 @@ def smtp_connect(host, port, secure, verbose):
     Returns:
         - s (socket): The socket connected to the SMTP server.
     """
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # ...
-    return s
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(TIMEOUT)
+        if secure:
+            context = ssl.create_default_context()
+            s = context.wrap_socket(s, server_hostname=host)
+        s.connect((host, port))
+        if verbose:
+            print(f"Connected to {host} on port {port}")
+        return s
+    except Exception as e:
+        if verbose:
+            print(f"Connection failed: {e}")
+        return None
+
 
 ###############################################
 
@@ -52,10 +64,17 @@ def smtp_hello(s, verbose):
         - ok (bool): Server status (True if the command is successful, False otherwise).
         - ans (str): Server response.
     """
-    ok = False
-    ans = ""
-    # ...
-    return ok, ans
+    try:
+        s.sendall(b'EHLO ' + DOMAIN.encode() +  b'\r\n')
+        response = s.recv(MAXLINE).decode()
+        if verbose:
+            print(f"EHLO response: {response}")
+        return '250' in response, response
+    except Exception as e:
+        if verbose:
+            print(f"EHLO failed: {e}")
+        return False, str(e)
+
 
 ###############################################
 
@@ -112,10 +131,28 @@ def smtp_send(s, msg, verbose):
         - ok (bool): Server status (True if the send is successful, False otherwise).
         - ans (str): Server response.
     """
-    ok = False
-    ans = ""
-    # ...
-    return ok, ans
+    try:
+        # responses = []
+        s.sendall(b'MAIL FROM:<' + msg['From'].encode() + b'>\r\n')
+        # responses += s.recv(MAXLINE).decode()
+
+        s.sendall(b'RCPT TO:<' + msg['To'].encode() + b'>\r\n')
+        # responses += s.recv(MAXLINE).decode()
+
+        s.sendall(b'DATA\r\n')
+        # responses += s.recv(MAXLINE).decode()
+
+        data_body = msg['Subject'].encode() + b'\n' + msg['Date'].encode() + b'\n' + msg.get_payload().encode()
+        s.sendall(data_body + b'\r\n.\r\n')
+        response = s.recv(MAXLINE).decode()
+
+        if verbose:
+            print(f"SEND response: {response}")
+        return '250' in response, response
+    except Exception as e:
+        if verbose:
+            print(f"SEND failed: {e}")
+        return False, str(e)
 
 ###############################################
 
@@ -132,9 +169,15 @@ def smtp_quit(s, verbose):
         - ok (bool): Server status (True if the command is successful, False otherwise).
         - ans (str): Server response.
     """
-    ok = False
-    ans = ""
-    # ...
-    return ok, ans
+    try:
+        s.sendall(b'QUIT\r\n')
+        response = s.recv(MAXLINE).decode()
+        if verbose:
+            print(f"EHLO response: {response}")
+        return '221' in response, response
+    except Exception as e:
+        if verbose:
+            print(f"EHLO failed: {e}")
+        return False, str(e)
 
 ### EOF
