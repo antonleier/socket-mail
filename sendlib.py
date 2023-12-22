@@ -39,6 +39,11 @@ def smtp_connect(host, port, secure, verbose):
         s.settimeout(TIMEOUT)
         if secure:
             context = ssl.create_default_context()
+
+            # not sure what this does
+            context.check_hostname = False
+            context.verify_mode = ssl.CERT_NONE
+
             s = context.wrap_socket(s, server_hostname=host)
         s.connect((host, port))
         if verbose:
