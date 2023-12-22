@@ -92,10 +92,18 @@ def smtp_auth(s, login, password, verbose):
         - ok (bool): Server status (True if authentication is successful, False otherwise).
         - ans (str): Server response.
     """
-    ok = False
-    ans = ""
-    # ...
-    return ok, ans
+    try:
+        auth_message = '\0' + login + '\0' + password
+        encoded_auth = base64.b64encode(auth_message.encode()).decode()
+        s.sendall(b'AUTH PLAIN ' + encoded_auth.encode() +  b'\r\n')
+        response = s.recv(MAXLINE).decode()
+        if verbose:
+            print(f"AUTH response: {response}")
+        return '235' in response, response
+    except Exception as e:
+        if verbose:
+            print(f"AUTH failed: {e}")
+        return False, str(e)
 
 ###############################################
 
